@@ -28,13 +28,10 @@ const server = http.createServer((req, res) => {
     } else if (req.url.startsWith('/todos/') && req.method === 'DELETE') { //the basic delete method to remove a note from list
         const parts = req.url.split('/');
         const id = parseInt(parts[2]);
-        
         const indexToRemove = todos.findIndex(todo => todo.id === id);
-
         if (indexToRemove !== -1) {
             todos.splice(indexToRemove, 1);
         }
-
         res.writeHead(204);
         res.end();
     } else { //error handling in case route not defined
