@@ -34,6 +34,34 @@ const server = http.createServer((req, res) => {
         }
         res.writeHead(204);
         res.end();
+    } else if (req.url.startsWith('/todos/') && req.method === 'PUT') {
+        const parts = req.url.split('/');
+        const id = parseInt(parts[2]);
+        let body = '';
+        req.on('data', (chunk) => {
+            body += chunk.toString();
+        });
+        req.on('end', () => {
+            try {
+                const newTodo = JSON.parse(body);
+                const indexToUpdate = todos.findIndex(todo => todo.id === id);
+                if (indexToUpdate === -1) {
+                    res.writeHead(404, { 'content-type': 'application/json' });
+                    res.end(JSON.stringify({message: 'Todo not found'}));
+                    return;
+                }
+                const updatedTodo = {
+                    ...todos[indexToUpdate],
+                    ...newTodo
+                }
+                todos[indexToUpdate] = updatedTodo;
+                res.writeHead(200, { 'content-type': 'application/json' });
+                res.end(JSON.stringify(updatedTodo));
+            } catch (error) {
+                res.writeHead(400, { 'content-type': 'application/json' });
+                res.end(JSON.stringify({message: "Invalid JSON"}));
+            }
+        });
     } else { //error handling in case route not defined
         res.writeHead(404, { 'content-type' : 'application/json' });
         res.end(JSON.stringify({ message: 'Route Not Found.' }));
