@@ -4,10 +4,11 @@ const http = require('http');
 //importing the fs module
 const fs = require('fs');
 
-//init inline db
+//init necessary variables 
 let todos;
 let nextId;
 
+//load the db from db.json and init the nextId according to the contents in db.json
 try {
     const data = fs.readFileSync('db.json', 'utf8');
     todos = JSON.parse(data);
@@ -23,6 +24,7 @@ try {
     nextId = 1;
 }
 
+//write to db.json
 async function saveDataToFile() {
     try {
         const data = JSON.stringify(todos, null, 2);
