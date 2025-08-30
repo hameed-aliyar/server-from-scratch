@@ -1,15 +1,39 @@
-//importing http
+//importing http module
 const http = require('http');
 
+//importing the fs module
+const fs = require('fs');
+
 //init inline db
-const todos = [
-    { id: 1, text: 'Learn Node.js basics', completed: true },
-    { id: 2, text: 'Build a no-framework server', completed: false },
-    { id: 3, text: 'Relax this weekend', completed: false }
-];
+let todos;
+let nextId;
+
+try {
+    const data = fs.readFileSync('db.json', 'utf8');
+    todos = JSON.parse(data);
+    if (todos.length > 0) {
+        nextId = Math.max(...todos.map(t => t.id)) + 1;
+    } else {
+        nextId = 1;
+    }
+    console.log('Database loaded successfully from db.json.');
+} catch (error) {
+    console.error("Error reading database file: ", error);
+    todos = [];
+    nextId = 1;
+}
+
+async function saveDataToFile() {
+    try {
+        const data = JSON.stringify(todos, null, 2);
+        await fs.promises.writeFile('db.json', data, 'utf8');
+    } catch (error) {
+        console.error("Error writing to database file: ", error);
+    }
+}
 
 //creating the server
-const server = http.createServer((req, res) => {
+const server = http.createServer( async (req, res) => {
     if (req.url === '/todos' && req.method === 'GET') { //the basic get method that fetches the list
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(todos));
@@ -18,7 +42,7 @@ const server = http.createServer((req, res) => {
         req.on('data', (chunk) => {
             body += chunk.toString();
         });
-        req.on('end', () => {
+        req.on('end', async () => {
             try {
                 console.log('Received body string before parsing:', body);
                 const newTodo = JSON.parse(body.trim());
@@ -29,6 +53,7 @@ const server = http.createServer((req, res) => {
                 }
                 newTodo.id = todos.length + 1;
                 todos.push(newTodo);
+                await saveDataToFile();
                 res.writeHead(201, { 'content-type': 'application/json' });
                 res.end(JSON.stringify(newTodo));
             } catch (error) {
@@ -38,14 +63,24 @@ const server = http.createServer((req, res) => {
             }
         });
     } else if (req.url.startsWith('/todos/') && req.method === 'DELETE') { //the basic delete method to remove a note from list
-        const parts = req.url.split('/');
-        const id = parseInt(parts[2]);
-        const indexToRemove = todos.findIndex(todo => todo.id === id);
-        if (indexToRemove !== -1) {
-            todos.splice(indexToRemove, 1);
+        try {
+            const parts = req.url.split('/');
+            const id = parseInt(parts[2]);
+            const indexToRemove = todos.findIndex(todo => todo.id === id);
+            if (indexToRemove !== -1) {
+                todos.splice(indexToRemove, 1);
+                await saveDataToFile();
+                res.writeHead(204);
+                res.end();
+            } else {
+                res.writeHead(404, { 'Content-Type': 'application/json' });
+                res.end(JSON.stringify({ message: 'Todo not found' }));
+            }   
+        } catch (error) {
+            console.error('Error in DELETE handler:', error);
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ message: 'Server Error' }));
         }
-        res.writeHead(204);
-        res.end();
     } else if (req.url.startsWith('/todos/') && req.method === 'PUT') { //the basic put method to update a note in the list
         const parts = req.url.split('/');
         const id = parseInt(parts[2]);
@@ -53,7 +88,7 @@ const server = http.createServer((req, res) => {
         req.on('data', (chunk) => {
             body += chunk.toString();
         });
-        req.on('end', () => {
+        req.on('end', async () => {
             try {
                 console.log('Received body string before parsing:', body);
                 const newTodo = JSON.parse(body.trim());
@@ -76,6 +111,7 @@ const server = http.createServer((req, res) => {
                     ...newTodo
                 }
                 todos[indexToUpdate] = updatedTodo;
+                await saveDataToFile();
                 res.writeHead(200, { 'content-type': 'application/json' });
                 res.end(JSON.stringify(updatedTodo));
             } catch (error) {

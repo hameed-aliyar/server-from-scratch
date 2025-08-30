@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "text": "Learn Node.js basics",
+    "completed": true
+  },
+  {
+    "id": 2,
+    "text": "Build a no-framework server",
+    "completed": false
+  },
+  {
+    "id": 3,
+    "text": "Relax this weekend",
+    "completed": false
+  },
+  {
+    "text": "Test my successful POST request again",
+    "completed": false,
+    "id": 4
+  }
+]
