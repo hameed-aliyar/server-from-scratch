@@ -34,7 +34,7 @@ const server = http.createServer((req, res) => {
         }
         res.writeHead(204);
         res.end();
-    } else if (req.url.startsWith('/todos/') && req.method === 'PUT') {
+    } else if (req.url.startsWith('/todos/') && req.method === 'PUT') { //the basic put method to update a note in the list
         const parts = req.url.split('/');
         const id = parseInt(parts[2]);
         let body = '';
