@@ -19,11 +19,23 @@ const server = http.createServer((req, res) => {
             body += chunk.toString();
         });
         req.on('end', () => {
-            const newTodo = JSON.parse(body);
-            newTodo.id = todos.length + 1;
-            todos.push(newTodo);
-            res.writeHead(201, { 'content-type': 'application/json' });
-            res.end(JSON.stringify(newTodo));
+            try {
+                console.log('Received body string before parsing:', body);
+                const newTodo = JSON.parse(body.trim());
+                if (!newTodo.text || typeof newTodo.text !== 'string' || newTodo.text.trim() === '') {
+                    res.writeHead(400, { 'content-type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'Validation Error: The "text" field is required and must be non-empty string.'}));
+                    return;
+                }
+                newTodo.id = todos.length + 1;
+                todos.push(newTodo);
+                res.writeHead(201, { 'content-type': 'application/json' });
+                res.end(JSON.stringify(newTodo));
+            } catch (error) {
+                console.error("Error parsing JSON:", error);
+                res.writeHead(400, { 'content-type': 'application/json' });
+                res.end(JSON.stringify({message: "Invalid JSON"}));
+            }
         });
     } else if (req.url.startsWith('/todos/') && req.method === 'DELETE') { //the basic delete method to remove a note from list
         const parts = req.url.split('/');
@@ -43,7 +55,16 @@ const server = http.createServer((req, res) => {
         });
         req.on('end', () => {
             try {
-                const newTodo = JSON.parse(body);
+                console.log('Received body string before parsing:', body);
+                const newTodo = JSON.parse(body.trim());
+                if (
+                    (newTodo.text !== undefined && (typeof newTodo.text !== 'string' || newTodo.text.trim() === '')) || 
+                    (newTodo.completed !== undefined && typeof newTodo.completed !== 'boolean')
+                ) {
+                    res.writeHead(400, { 'content-type': 'application/json' });
+                    res.end(JSON.stringify({ message: 'Validation Error: "text" must be a string and "completed" must be a boolean.'}));
+                    return;
+                }
                 const indexToUpdate = todos.findIndex(todo => todo.id === id);
                 if (indexToUpdate === -1) {
                     res.writeHead(404, { 'content-type': 'application/json' });
@@ -58,6 +79,7 @@ const server = http.createServer((req, res) => {
                 res.writeHead(200, { 'content-type': 'application/json' });
                 res.end(JSON.stringify(updatedTodo));
             } catch (error) {
+                console.error("Error parsing JSON:", error);
                 res.writeHead(400, { 'content-type': 'application/json' });
                 res.end(JSON.stringify({message: "Invalid JSON"}));
             }
