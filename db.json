@@ -16,7 +16,7 @@
   },
   {
     "text": "Test my successful POST request again",
-    "completed": true,
+    "completed": false,
     "id": 4
   }
 ]
