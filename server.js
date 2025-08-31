@@ -27,8 +27,14 @@ try {
     nextId = 1;
 }
 
+//creating a container for db
+const db = {
+    todos: todos,
+    nextId: nextId
+};
+
 //write to db.json
-async function saveDataToFile() {
+async function saveDataToFile(todos) {
     try {
         const data = JSON.stringify(todos, null, 2);
         await fs.promises.writeFile('db.json', data, 'utf8');
@@ -39,7 +45,7 @@ async function saveDataToFile() {
 
 //creating the server
 const server = http.createServer( async (req, res) => {
-    routeHandler(req, res, todos, nextId, saveDataToFile);
+    routeHandler(req, res, db, saveDataToFile);
 
 });
 
