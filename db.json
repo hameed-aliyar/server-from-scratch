@@ -13,10 +13,5 @@
     "id": 3,
     "text": "Relax this weekend",
     "completed": false
-  },
-  {
-    "text": "Test my successful POST request again",
-    "completed": false,
-    "id": 4
   }
 ]
