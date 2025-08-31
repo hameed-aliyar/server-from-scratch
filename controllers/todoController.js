@@ -86,7 +86,7 @@ async function deleteTodo(req, res, db, saveDataToFile) {
             res.writeHead(204);
             res.end();
         } else {
-            res.writeHead(44, { 'Content-Type': 'application/json' });
+            res.writeHead(404, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify({ message: 'Todo not found' }));
         }
     } catch (error) {
