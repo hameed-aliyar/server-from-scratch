@@ -1,6 +1,5 @@
 function errorHandler(res, error) {
   console.error('[errorHandler] An unexpected error occurred:', error);
-
   if (res.headersSent) {
     console.log('[errorHandler] Headers were already sent. Ending the request.');
     res.end();

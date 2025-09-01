@@ -67,18 +67,18 @@ async function updateTodo(req, res, db, saveDataToFile) {
 }
 
 async function deleteTodo(req, res, db, saveDataToFile) {
-        const parts = req.url.split('/');
-        const id = parseInt(parts[2]);
-        const indexToRemove = db.todos.findIndex(todo => todo.id === id);
-        if (indexToRemove !== -1) {
-            db.todos.splice(indexToRemove, 1);
-            await saveDataToFile(db.todos);
-            res.writeHead(204);
-            res.end();
-        } else {
-            res.writeHead(404, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify({ message: 'Todo not found' }));
-        }
+    const parts = req.url.split('/');
+    const id = parseInt(parts[2]);
+    const indexToRemove = db.todos.findIndex(todo => todo.id === id);
+    if (indexToRemove !== -1) {
+        db.todos.splice(indexToRemove, 1);
+        await saveDataToFile(db.todos);
+        res.writeHead(204);
+        res.end();
+    } else {
+        res.writeHead(404, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ message: 'Todo not found' }));
+    }
 }
 
 module.exports = {
