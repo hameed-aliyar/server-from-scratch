@@ -1,8 +1,14 @@
+//importing .env
+require('dotenv').config();
+
 //importing http module
 const http = require('http')
 
 //importing router
 const routeHandler = require('./router.js');
+
+//importing errorHandler
+const errorHandler = require('./utils/errorHandler.js');
 
 //importing the fs module
 const fs = require('fs');
@@ -45,12 +51,15 @@ async function saveDataToFile(todos) {
 
 //creating the server
 const server = http.createServer( async (req, res) => {
-    routeHandler(req, res, db, saveDataToFile);
-
+    try {
+        await routeHandler(req, res, db, saveDataToFile);
+    } catch (error) {
+        errorHandler(res, error);
+    }
 });
 
 //init port
-const PORT = 3000;
+const PORT = process.env.PORT || 4000;
 
 //running the server 
 server.listen(PORT, () => {
