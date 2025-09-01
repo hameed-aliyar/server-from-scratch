@@ -10,6 +10,9 @@ const routeHandler = require('./router.js');
 //importing errorHandler
 const errorHandler = require('./utils/errorHandler.js');
 
+//importing logger middleware
+const logger = require('./middleware/logger.js');
+
 //importing the fs module
 const fs = require('fs');
 
@@ -51,11 +54,13 @@ async function saveDataToFile(todos) {
 
 //creating the server
 const server = http.createServer( async (req, res) => {
-    try {
-        await routeHandler(req, res, db, saveDataToFile);
-    } catch (error) {
-        errorHandler(res, error);
-    }
+    logger(req, res, async () => {
+        try {
+            await routeHandler(req, res, db, saveDataToFile);
+        } catch (error) {
+            errorHandler(res, error);
+        }   
+    });
 });
 
 //init port
