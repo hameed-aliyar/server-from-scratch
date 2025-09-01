@@ -1,4 +1,4 @@
-const todoController = require('./controllers/todoController.js');
+const todoController = require('../controllers/todoController.js');
 
 async function routeHandler(req, res, db, saveDataToFile) {
     if (req.url === '/todos' && req.method  === 'GET') {

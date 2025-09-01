@@ -5,7 +5,7 @@ require('dotenv').config();
 const http = require('http')
 
 //importing router
-const routeHandler = require('./router.js');
+const routeHandler = require('./routes/router.js');
 
 //importing errorHandler
 const errorHandler = require('./utils/errorHandler.js');
